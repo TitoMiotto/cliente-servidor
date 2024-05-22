@@ -3,13 +3,13 @@ package simulacion.ClienteServidor.Models;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
+import java.util.*;
 
 @Data
 public class Servidor {
     private boolean ocupado;
     private int inicioServicio;
-    private int colaClientes = 0;
+    private Queue<Cliente> colaClientes = new LinkedList<>();
 
     public void liberar(){
         this.ocupado = false;
@@ -17,8 +17,7 @@ public class Servidor {
     public void ocupar(){
         this.ocupado = true;
     }
-    public void setColaClientes(int i){
-        this.colaClientes = this.colaClientes + i;
+    public void addColaClientes(Cliente cliente){
+        this.colaClientes.add(cliente);
     }
 }
-
