@@ -1,27 +1,43 @@
 package simulacion.ClienteServidor.Models;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import simulacion.ClienteServidor.Services.Gestor;
-@AllArgsConstructor
+
+
 @Data
 public class EventoServidor implements Evento {
     private float reloj;
     private Servidor servidor;
-    private Cliente cliente;
+    private Cliente clienteActual;
+    private Cliente proxcliente;
+
+
+    public EventoServidor(float reloj, Servidor servidor, Cliente clienteActual){
+        this.reloj = reloj;
+        this.servidor = servidor;
+        this.clienteActual = clienteActual;
+    }
     @Override
     public List<Evento> avanzar() {
+
         List<Evento> ProxEventosAgenerar = new ArrayList<>();
+        if(clienteActual.getTrabajo() instanceof TrabajoC tc){
+            //"estamos dejande en stan by un trabajo tipo C la cola debe disminuir"
+            System.out.println("_____________________________________");
+            servidor.setLugaresDisponibles(-1);
+            ProxEventosAgenerar.add(new EventoClienteC(reloj+ tc.getUltimaParteC(), servidor, clienteActual));
+        }
         if(servidor.getColaClientes().isEmpty()){
             servidor.liberar();
+            servidor.reporte.actualizarPorcOcupacionTecnico(reloj - servidor.getInicioServicio(), reloj);
         }else{
-            cliente = servidor.getColaClientes().poll();
-            ProxEventosAgenerar.add(new EventoServidor(reloj+cliente.getTrabajo().getTiempo(), servidor, cliente));
+            proxcliente = servidor.getColaClientes().poll();
+            ProxEventosAgenerar.add(new EventoServidor(reloj+ proxcliente.getTiempo(), servidor, proxcliente));
         }
+        servidor.reporte.actualizarPromDeTiempoEnLab(reloj-clienteActual.getHoraLlegada());
         return ProxEventosAgenerar;
     }
 
@@ -32,6 +48,6 @@ public class EventoServidor implements Evento {
 
 
     public String toString(){
-        return new StringBuilder().append("Atencion servidor ").append("hora de fin: ").append(reloj).append(" Trabajo del cliente: ").append(cliente.getTrabajo()).toString();
+        return new StringBuilder().append("---Atencion servidor ").append(reloj).append(" cliente atendido: ").append(clienteActual).append("\n").toString();
     }
 }
