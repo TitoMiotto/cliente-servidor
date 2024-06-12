@@ -13,6 +13,7 @@ public class SalidaDto {
     public float rndTipoTrabajo;
     public String tipoTrabajo;
     public String cola;
+    public int colaC;
     public int lugaresDisponibles;
     public int countEquipos;
     public float horaCambioTrabajo;

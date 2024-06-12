@@ -112,23 +112,43 @@ public class Gestor {
                     salidaDto.setRndTipoTrabajo(a.getRndTrabajo());
                     salidaDto.setTipoTrabajo(a.getCliente().getTrabajo().getNombre());
                     salidaDto.setCola(servidor.getColaClientes().toString());
+                    salidaDto.setColaC(10-servidor.getLugaresDisponibles());
                     salidaDto.setLugaresDisponibles(servidor.getLugaresDisponibles()-servidor.getColaClientes().size());
                     salidaDto.setCountEquipos(equipos);
                     if(a.getCliente().getTrabajo().getId() == 3) {
                         TrabajoC tr = (TrabajoC) a.getCliente().getTrabajo();
                         salidaDto.setHoraCambioTrabajo(a.getCliente().getTiempo() + a.getCliente().getHoraLlegada());
-                        salidaDto.setHoraReanudacionTrabajo(tr.getUltimaParteC());
+                        salidaDto.setHoraReanudacionTrabajo(tr.getUltimaParteC() + a.getCliente().getHoraLlegada());
+                        salidaDto.setTiempoTrabajo(tr.getUltimaParteC() + a.getCliente().getTiempo() * 2);
+                        salidaDto.setHoraFinTrabajo(a.getReloj() + tr.getUltimaParteC() + a.getCliente().getTiempo() * 2);
+                    }else{
+                        salidaDto.setTiempoTrabajo(a.getCliente().getTrabajo().getTiempo());
+                        salidaDto.setHoraFinTrabajo(a.getCliente().getTrabajo().getTiempo()+a.getReloj());
                     }
                     salidaDto.setRndFinTrabajo(a.getCliente().getTrabajo().getRnd());
-                    salidaDto.setTiempoTrabajo(a.getCliente().getTrabajo().getTiempo());
-                    salidaDto.setHoraFinTrabajo(a.getCliente().getTrabajo().getTiempo()+a.getReloj());
                     salidaDto.setEstadoTecnico(servidor.isOcupado());
                     salidaDto.setHorainicioOcupacion(servidor.getInicioServicio());
                     salidaDto.setTiempoOcupacion(a.getReloj()-servidor.getInicioServicio());
                     ColaSalida.add(salidaDto);
                 } else if (Actual instanceof EventoServidor) {
-
-                }else {
+                    EventoServidor a = (EventoServidor) Actual;
+                    SalidaDto salidaDto = new SalidaDto();
+                    salidaDto.setEvento("Fin de trabajo");
+                    salidaDto.setReloj(a.getReloj());
+                    salidaDto.setCola(servidor.getColaClientes().toString());
+                    salidaDto.setColaC(10-servidor.getLugaresDisponibles());
+                    salidaDto.setLugaresDisponibles(servidor.getLugaresDisponibles()-servidor.getColaClientes().size());
+                    salidaDto.setCountEquipos(equipos);
+                    if(servidor.isOcupado())
+                        salidaDto.setEstadoTecnico(true);
+                    else{
+                        salidaDto.setHoraFinOcupacion(a.getReloj());
+                        salidaDto.setEstadoTecnico(false);
+                        salidaDto.setTiempopermanencia(salidaDto.getTiempopermanencia()+a.getReloj()- servidor.getInicioServicio());
+                    }
+                    salidaDto.setHorainicioOcupacion(servidor.getInicioServicio());
+                    salidaDto.setTiempoOcupacion(a.getReloj()-servidor.getInicioServicio());
+                    ColaSalida.add(salidaDto);
 
                 }
             }
